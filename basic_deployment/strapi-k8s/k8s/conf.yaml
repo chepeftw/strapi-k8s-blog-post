@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strapi-database-conf
+data:
+  MYSQL_USER: strapi
+  MYSQL_DATABASE: my-project
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: strapi-database-secret
+type: Opaque
+data:
+  # please never use these passwords, always use strong passwords
+  MYSQL_ROOT_PASSWORD: c3RyYXBpLXN1cGVyLXNlY3VyZS1yb290LXBhc3N3b3Jk # echo -n strapi-super-secure-root-password | base64
+  MYSQL_PASSWORD: c3RyYXBpLXBhc3N3b3Jk # echo -n strapi-password | base64
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: strapi-app-conf
+data:
+  HOST: 0.0.0.0
+  PORT: "1337"
+  NODE_ENV: development
+
+  # we'll explain the db host later
+  DATABASE_HOST: strapi-db
+  DATABASE_PORT: "3306"
+  DATABASE_USERNAME: strapi
+  DATABASE_NAME: my-project
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: strapi-app-secret
+type: Opaque
+data:
+  # use the proper values in here
+  APP_KEYS: a0x5ZTlSQmFmWk1UTWxPTkxYYW1wQT09LFRGMVpjL1A5czh1V2lia2xIRytXdVE9PSxFcG9sOUFkT1FrTFE5bmlaZE9HZFRnPT0sMW9xWEVBSFVYWG1YS08vMXdUSjVCUT09 # kLye9RBafZMTMlONLXampA==,TF1Zc/P9s8uWibklHG+WuQ==,Epol9AdOQkLQ9niZdOGdTg==,1oqXEAHUXXmXKO/1wTJ5BQ==
+  API_TOKEN_SALT: KzdlWVdZRkV5b1NEc3pOYTEwR1JYdz09 # +7eYWYFEyoSDszNa10GRXw==
+  ADMIN_JWT_SECRET: ZHpIRlhEM1hkeGF5SkRkL1dzT050UT09 # dzHFXD3XdxayJDd/WsONtQ==
+  JWT_SECRET: ZHpIRlhEM1hkeGF5SkRkL1dzT050UT09 # dzHFXD3XdxayJDd/WsONtQ==
+  # please NEVER use these passwords, always use strong passwords
+  DATABASE_PASSWORD: c3RyYXBpLXBhc3N3b3Jk # echo -n strapi-password | base64

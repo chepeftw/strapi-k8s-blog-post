@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: strapi-database-pv
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  hostPath:
+    path: "/mnt/disks/ssd1/strapi-database-pv" # the path we configured in the conf file to create the cluster + subpath
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: strapi-database-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: strapi-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: strapi-db
+  template:
+    metadata:
+      labels:
+        app: strapi-db
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:5.7
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+          ports:
+            - containerPort: 3306
+              name: mysql
+          envFrom:
+            - configMapRef:
+                name: strapi-database-conf # the name of our ConfigMap for our db.
+            - secretRef:
+                name: strapi-database-secret # the name of our Secret for our db.
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: strapi-database-pvc # the name of our PersistentVolumeClaim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: strapi-db # this is the name we use for DATABASE_HOST
+spec:
+  selector:
+    app: strapi-db
+  ports:
+    - name: mysql
+      protocol: TCP
+      port: 3306
+      targetPort: mysql # same name defined in the Deployment path spec.template.spec.containers[0].ports[0].name

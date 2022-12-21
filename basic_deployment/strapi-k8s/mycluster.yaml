@@ -1,0 +1,43 @@
+apiVersion: k3d.io/v1alpha4 # this will change in the future as we make everything more stable
+kind: Simple # internally, we also have a Cluster config, which is not yet available externally
+metadata:
+  name: mycluster # name that you want to give to your cluster (will still be prefixed with `k3d-`)
+servers: 1 # same as `--servers 1`
+agents: 2 # same as `--agents 2`
+ports:
+  - port: 8900:30080 # same as `--port '8080:80@loadbalancer'`
+    nodeFilters:
+      - agent:0
+  - port: 8901:30081 # Rancher
+    nodeFilters:
+      - agent:0
+  - port: 8902:30082 # Grafana
+    nodeFilters:
+      - agent:0
+  - port: 1337:31337 # for Strapi
+    nodeFilters:
+      - agent:0
+volumes: # repeatable flags are represented as YAML lists
+  - volume: /tmp/k3d:/var/lib/rancher/k3s/storage # same as `--volume '/my/host/path:/path/in/node@server:0;agent:*'`
+    nodeFilters:
+      - server:0
+      - agent:*
+registries: # define how registries should be created or used
+  create: # creates a default registry to be used with the cluster; same as `--registry-create registry.localhost`
+    name: app-registry
+    host: "0.0.0.0"
+    hostPort: "5050"
+  config: | # define contents of the `registries.yaml` file (or reference a file); same as `--registry-config /path/to/config.yaml`
+    mirrors:
+      "localhost:5050":
+        endpoint:
+          - http://app-registry:5050
+options:
+  k3d: # k3d runtime settings
+    wait: true # wait for cluster to be usable before returining; same as `--wait` (default: true)
+    timeout: "60s" # wait timeout before aborting; same as `--timeout 60s`
+    disableLoadbalancer: false # same as `--no-lb`
+  kubeconfig:
+    updateDefaultKubeconfig: true # add new cluster to your default Kubeconfig; same as `--kubeconfig-update-default` (default: true)
+    switchCurrentContext: true # also set current-context to the new cluster's context; same as `--kubeconfig-switch-context` (default: true)
+  
