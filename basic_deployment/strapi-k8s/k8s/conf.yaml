@@ -4,7 +4,7 @@ metadata:
   name: strapi-database-conf
 data:
   MYSQL_USER: strapi
-  MYSQL_DATABASE: my-project
+  MYSQL_DATABASE: strapi-k8s
 ---
 apiVersion: v1
 kind: Secret
@@ -29,7 +29,7 @@ data:
   DATABASE_HOST: strapi-db
   DATABASE_PORT: "3306"
   DATABASE_USERNAME: strapi
-  DATABASE_NAME: my-project
+  DATABASE_NAME: strapi-k8s
 ---
 apiVersion: v1
 kind: Secret
