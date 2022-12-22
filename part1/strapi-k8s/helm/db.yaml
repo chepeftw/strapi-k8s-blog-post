@@ -1,0 +1,30 @@
+image:
+  repository: mysql
+  tag: 5.7
+
+securityContext:
+  runAsUser: 1000
+  allowPrivilegeEscalation: false
+
+service:
+  port: 3306
+  portName: mysql
+  containerPort: 3306
+
+storage:
+  claim:
+    enabled: true
+  mountPath: "/var/lib/mysql"
+
+configMap:
+  enabled: true
+  data:
+    MYSQL_USER: strapi
+    MYSQL_DATABASE: strapi-k8s
+
+secret:
+  enabled: true
+  data:
+    # please never use these passwords, always use strong passwords, AND remember the section "(Parenthesis regarding the Secrets)"
+    MYSQL_ROOT_PASSWORD: c3RyYXBpLXN1cGVyLXNlY3VyZS1yb290LXBhc3N3b3Jk # echo -n strapi-super-secure-root-password | base64
+    MYSQL_PASSWORD: c3RyYXBpLXBhc3N3b3Jk # echo -n strapi-password | base64

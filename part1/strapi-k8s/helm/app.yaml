@@ -1,0 +1,32 @@
+image:
+  repository: app-registry:5050/mystrapiapp-prod
+  tag: 0.0.1
+
+service:
+  type: NodePort
+  port: 1337
+  containerPort: 1337
+  nodePort: 31337
+
+configMap:
+  enabled: true
+  data:
+    HOST: 0.0.0.0
+    PORT: "1337"
+    NODE_ENV: production
+
+    DATABASE_HOST: mysql-strapi-chart # notice that this name changed
+    DATABASE_PORT: "3306"
+    DATABASE_USERNAME: strapi
+    DATABASE_NAME: strapi-k8s
+
+secret:
+  enabled: true
+  data:
+    # use the proper values in here in base64
+    APP_KEYS: a0x5ZTlSQmFmWk1UTWxPTkxYYW1wQT09LFRGMVpjL1A5czh1V2lia2xIRytXdVE9PSxFcG9sOUFkT1FrTFE5bmlaZE9HZFRnPT0sMW9xWEVBSFVYWG1YS08vMXdUSjVCUT09 # kLye9RBafZMTMlONLXampA==,TF1Zc/P9s8uWibklHG+WuQ==,Epol9AdOQkLQ9niZdOGdTg==,1oqXEAHUXXmXKO/1wTJ5BQ==
+    API_TOKEN_SALT: KzdlWVdZRkV5b1NEc3pOYTEwR1JYdz09 # +7eYWYFEyoSDszNa10GRXw==
+    ADMIN_JWT_SECRET: ZHpIRlhEM1hkeGF5SkRkL1dzT050UT09 # dzHFXD3XdxayJDd/WsONtQ==
+    JWT_SECRET: ZHpIRlhEM1hkeGF5SkRkL1dzT050UT09 # dzHFXD3XdxayJDd/WsONtQ==
+
+    DATABASE_PASSWORD: c3RyYXBpLXBhc3N3b3Jk # echo -n strapi-password | base64

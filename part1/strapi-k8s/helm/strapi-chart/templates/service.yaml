@@ -8,8 +8,11 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: {{ .Values.service.containerPort }}
       protocol: TCP
-      name: http
+      name: {{ .Values.service.portName }}
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "strapi-chart.selectorLabels" . | nindent 4 }}

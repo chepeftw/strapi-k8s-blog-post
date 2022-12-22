@@ -39,6 +39,9 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 80
+  portName: http
+  containerPort: 80
+  nodePort: # for a Service of type NodePort, and yes, we'll leave it empty
 
 ingress:
   enabled: false
@@ -80,3 +83,30 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+storage:
+  claim:
+    enabled: false
+  capacity: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  mountPath: "/tmp"
+
+configMap:
+  enabled: false
+  data: {}
+
+secret:
+  enabled: false
+  data: {}
+
+livenessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http
+
+readinessProbe: {}
+#  httpGet:
+#    path: /
+#    port: http

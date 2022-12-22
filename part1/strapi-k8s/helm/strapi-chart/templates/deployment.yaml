@@ -34,19 +34,35 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: {{ .Values.service.portName }}
+              containerPort: {{ .Values.service.containerPort }}
               protocol: TCP
+          {{- if .Values.livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.storage.claim.enabled }}
+          volumeMounts:
+            - name: {{ include "strapi-chart.fullname" . }}-storage
+              mountPath: {{ .Values.storage.mountPath }}
+          {{- end }}
+          {{- if or .Values.configMap.enabled .Values.secret.enabled }}
+          envFrom:
+            {{- if .Values.configMap.enabled }}
+            - configMapRef:
+                name: {{ include "strapi-chart.fullname" . }}
+            {{- end }}
+            {{- if .Values.secret.enabled }}
+            - secretRef:
+                name: {{ include "strapi-chart.fullname" . }}
+            {{- end }}
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -58,4 +74,10 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.storage.claim.enabled }}
+      volumes:
+        - name: {{ include "strapi-chart.fullname" . }}-storage
+          persistentVolumeClaim:
+            claimName: {{ include "strapi-chart.fullname" . }}-pvc
       {{- end }}
