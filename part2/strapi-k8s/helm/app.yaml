@@ -1,3 +1,5 @@
+replicaCount: 3
+
 image:
   repository: app-registry:5050/mystrapiapp-prod
   tag: 0.0.1
@@ -49,3 +51,24 @@ storage:
     - ReadWriteMany
   storageClassName: example-nfs
   mountPath: "/opt/app/public/uploads"
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/instance
+                operator: In
+                values:
+                  - strapi
+          topologyKey: kubernetes.io/hostname
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 2Gi
+  limits:
+    cpu: 2000m
+    memory: 4Gi

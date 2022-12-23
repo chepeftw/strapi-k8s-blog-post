@@ -111,3 +111,7 @@ readinessProbe: {}
 #  httpGet:
 #    path: /
 #    port: http
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
