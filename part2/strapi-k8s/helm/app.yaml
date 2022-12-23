@@ -30,3 +30,13 @@ secret:
     JWT_SECRET: ZHpIRlhEM1hkeGF5SkRkL1dzT050UT09 # dzHFXD3XdxayJDd/WsONtQ==
 
     DATABASE_PASSWORD: c3RyYXBpLXBhc3N3b3Jk # echo -n strapi-password | base64
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
