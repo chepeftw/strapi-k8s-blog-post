@@ -40,3 +40,12 @@ readinessProbe:
   httpGet:
     path: /
     port: http
+
+storage:
+  claim:
+    enabled: true
+  capacity: 1Gi # it's not really relevant when using an NFS disk
+  accessModes:
+    - ReadWriteMany
+  storageClassName: example-nfs
+  mountPath: "/opt/app/public/uploads"
