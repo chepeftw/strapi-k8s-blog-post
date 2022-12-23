@@ -17,6 +17,10 @@ RUN yarn build
 FROM node:16-alpine
 RUN apk add vips-dev
 RUN rm -rf /var/cache/apk/*
+RUN addgroup --gid 2000 strapi \
+    && adduser --disabled-password --gecos "" --no-create-home \
+    --uid 2001 --ingroup strapi strapi
+USER strapi
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 WORKDIR /opt/app

@@ -49,10 +49,16 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.storage.claim.enabled }}
+          {{- if or .Values.storage.claim.enabled .Values.volumes }}
           volumeMounts:
+            {{- if .Values.storage.claim.enabled }}
             - name: {{ include "strapi-chart.fullname" . }}-storage
               mountPath: {{ .Values.storage.mountPath }}
+            {{- end }}
+            {{- range $key, $val := .Values.volumes }}
+            - name: {{ $key }}
+              mountPath: {{ $val.mount }}
+            {{- end }}
           {{- end }}
           {{- if or .Values.configMap.enabled .Values.secret.enabled }}
           envFrom:
@@ -77,9 +83,15 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.storage.claim.enabled }}
+      {{- if or .Values.storage.claim.enabled .Values.volumes }}
       volumes:
+        {{- if .Values.storage.claim.enabled }}
         - name: {{ include "strapi-chart.fullname" . }}-storage
           persistentVolumeClaim:
             claimName: {{ include "strapi-chart.fullname" . }}-pvc
+        {{- end }}
+        {{- range $key, $val := .Values.volumes }}
+        - name: {{ $key }}
+          {{- toYaml $val.definition | nindent 10 }}
+        {{- end }}
       {{- end }}
