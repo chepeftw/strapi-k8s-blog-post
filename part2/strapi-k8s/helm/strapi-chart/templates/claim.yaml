@@ -1,0 +1,16 @@
+# ~/strapi-k8s/helm/strapi-chart/templates/claim.yaml
+
+{{- if .Values.storage.claim.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "strapi-chart.fullname" . }}-pvc
+  labels:
+      {{- include "strapi-chart.labels" . | nindent 4 }}
+spec:
+  accessModes: {{ .Values.storage.accessModes }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.capacity }}
+{{- end }}

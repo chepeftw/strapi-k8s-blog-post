@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "strapi-chart.fullname" . }}
+  labels:
+    {{- include "strapi-chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: {{ .Values.strategy | default "RollingUpdate" }}
+  selector:
+    matchLabels:
+      {{- include "strapi-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "strapi-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "strapi-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: {{ .Values.service.portName }}
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- if or .Values.storage.claim.enabled .Values.volumes }}
+          volumeMounts:
+            {{- if .Values.storage.claim.enabled }}
+            - name: {{ include "strapi-chart.fullname" . }}-storage
+              mountPath: {{ .Values.storage.mountPath }}
+            {{- end }}
+            {{- range $key, $val := .Values.volumes }}
+            - name: {{ $key }}
+              mountPath: {{ $val.mount }}
+            {{- end }}
+          {{- end }}
+          {{- if or .Values.configMap.enabled .Values.secret.enabled }}
+          envFrom:
+            {{- if .Values.configMap.enabled }}
+            - configMapRef:
+                name: {{ include "strapi-chart.fullname" . }}
+            {{- end }}
+            {{- if .Values.secret.enabled }}
+            - secretRef:
+                name: {{ include "strapi-chart.fullname" . }}
+            {{- end }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.storage.claim.enabled .Values.volumes }}
+      volumes:
+        {{- if .Values.storage.claim.enabled }}
+        - name: {{ include "strapi-chart.fullname" . }}-storage
+          persistentVolumeClaim:
+            claimName: {{ include "strapi-chart.fullname" . }}-pvc
+        {{- end }}
+        {{- range $key, $val := .Values.volumes }}
+        - name: {{ $key }}
+          {{- toYaml $val.definition | nindent 10 }}
+        {{- end }}
+      {{- end }}

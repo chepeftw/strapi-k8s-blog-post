@@ -1,0 +1,10 @@
+# ~/strapi-k8s/helm/strapi-chart/templates/configmap.yaml
+
+{{- if .Values.configMap.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "strapi-chart.fullname" . }}
+data:
+{{- toYaml .Values.configMap.data | nindent 2 }}
+{{- end }}
