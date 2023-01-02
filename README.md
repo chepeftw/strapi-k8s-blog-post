@@ -1,4 +1,4 @@
-# K8s + strapi articles
+# Strapi + K8s articles
 
 All resources for the article series titled "How to Deploy and Scale Strapi on a Kubernetes Cluster".
 You can find it in:
