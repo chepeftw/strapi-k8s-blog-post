@@ -1,3 +1,7 @@
-node_modules
-npm-debug.log
-yarn-error.log
+.tmp/
+.cache/
+.git/
+build/
+node_modules/
+.env
+data/
